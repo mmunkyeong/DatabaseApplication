@@ -1,1 +1,410 @@
 
+< DB PHP 코드들 >
+
+// 문제 1번 위 코드를 수정해서 총 이수 학점이 50~80사이의 컴퓨터과학과 학생에 대해
+sudent테이블의 내용을 출력해보세요.
+<?php
+echo "<Br>";
+$db=mysqli_connect("localhost","root","1234");
+mysqli_select_db($db, "university");
+
+$sql_result=mysqli_query($db, "select * from 
+student where dept_name='Comp. Sci.' and tot_cred <=80 and tot_cred>=50");
+
+echo "<table border=1>";
+while($sql_array=mysqli_fetch_array($sql_result)){
+	echo "<Tr>";
+	echo "<td>".$sql_array[0]." </td>";
+	echo "<td>".$sql_array[1]." </td>";
+	echo "<td>".$sql_array[2]." </td>";
+	echo "<td>".$sql_array[3]." </td>";
+	echo "</Tr>";
+}
+echo"</table>";
+?>
+
+// 문제 2번 데이터베이스에서 가장 이수학점이 많은 학생의 이름을 출력하세요. 
+
+<?php
+$db=mysqli_connect("localhost","root","1226");
+mysqli_select_db($db, "university");
+
+$sql_result=mysqli_query($db,"select name from 
+student order by tot_cred desc limit 0,1");
+
+//$sql_result=mysqli_query($db,"select * from 
+//student order by tot_cred desc limit 0,1");
+
+//echo $sql_result;
+echo "<table border=1>";
+while($sql_array=mysqli_fetch_array($sql_result)){
+	echo "<tr>";
+	echo "<td>".$sql_array[0]." </td>";
+	//echo "<td>".$sql_array[1]." </td>"; select * 일때 [1]만 필요 
+	//echo "<td>".$sql_array[2]." </td>";
+	echo "</tr>";
+}
+echo"</table>";
+?>
+
+//문제 3번 학과별 이수학점의 평균과 학생의 수를 출력하시오
+
+<?php
+$db=mysqli_connect("localhost","root","1226");
+mysqli_select_db($db, "university");
+
+$sql_result=mysqli_query($db,"select dept_name, avg(tot_cred),
+count(name) from student group by dept_name");
+
+//echo $sql_result;
+echo "<table border=1>";
+while($sql_array=mysqli_fetch_array($sql_result)){
+	echo "<tr>";
+	echo "<td>".$sql_array[0]." </td>";
+	echo "<td>".$sql_array[1]." </td>";
+	echo "<td>".$sql_array[2]." </td>";
+	echo "</tr>";
+}
+echo"</table>";
+?>
+
+// 문제 4번 학과별 이수학점의 평균과 등록한 기간의 평균
+<?php
+$db=mysqli_connect("localhost","root","1226");
+mysqli_select_db($db, "university");
+
+$sql_result=mysqli_query($db,"select * from student");
+
+echo "<table border=1>";
+while($sql_array=mysqli_fetch_array($sql_result)){	
+	$sql_result2=mysqli_query($db,"select max(year)-min(year) from takes  
+	where ID='".$sql_array[0]."'");
+	while($sql_array2=mysqli_fetch_array($sql_result2)){ 
+
+	echo "<tr>";
+	echo "<td>".$sql_array[0]." </td>";
+	echo "<td>".$sql_array2[0]." </td>";
+	echo "</tr>";
+	}
+}
+echo"</table>";
+?>
+
+// 문제 5번 가장 많은 이수학점을 가진 학생을 보유한 학과명을 출력해라. 
+<?php
+$db=mysqli_connect("localhost","root","1226");
+mysqli_select_db($db, "university");
+
+$sql_result=mysqli_query($db,"select dept_name  from student
+order by tot_cred desc limit 0,1");
+
+//echo $sql_result;
+echo "<table border=1>";
+while($sql_array=mysqli_fetch_array($sql_result)){
+	echo "<tr>";
+	echo "<td>".$sql_array[0]." </td>";
+	//echo "<td>".$sql_array[1]." </td>";
+	//echo "<td>".$sql_array[2]." </td>";
+	echo "</tr>";
+}
+echo"</table>";
+?>
+
+department.php
+<html>
+<head>
+<title>학과관리</title>
+</head>
+<body>
+<table><tr>
+	<td>
+	<?php include "header.php";
+	$db=mysqli_connect("localhost","root","1226"); //비밀번호 변경할 것
+	mysqli_select_db($db,"university");
+	?>
+	</td>
+
+	<td>
+	이곳은 학과관리 페이지 입니다. <br><br>
+	<?php
+	//echo "<br>post 넘어온 부분 시작<br>";
+	//print_r($_POST);
+	//echo "<br>post 넘어온 부분 끝<br>";
+	if($_POST){
+	// sql insert 작성부분
+		$result=mysqli_query($db, "insert into department values
+		('".$_POST["dept_name"]."',
+		'".$_POST["building"]."',
+		".$_POST["budget"].")");
+		}
+	?>
+	<form method="post">
+	학과명:<input type="text" name="dept_name"><br>
+	건물명:<input type="text" name="building"><br>
+	예산:<input type="text" name="budget"><br>
+	<input type="submit" value="추가">
+	</form>
+
+<br><br>
+
+	<?php
+	$sql_result=mysqli_query($db,"select * from department");
+	//echo $sql_result;
+	echo "<table border=1>";
+	while($sql_array=mysqli_fetch_row($sql_result)){ //fetch는 업데이트, 인서트문에는 필요 x 
+	//row array assoc  assoc 는 속성명 나오도록 하는거 
+	echo "<tr>";
+	for($i=0;$i<sizeof($sql_array);$i++)
+	echo "<td>".$sql_array[$i]."</td>";
+	echo "</tr>";
+	}
+	echo"</table>";
+	?>
+</td>
+</tr></table>
+</body>
+</html>
+
+instructor.php
+<html>
+<head>
+<title>교수관리</title>
+</head>
+<body>
+<table><tr>
+	<td>
+	<?php include "header.php";
+	$db=mysqli_connect("localhost","root","1226"); //비밀번호 변경할 것
+	mysqli_select_db($db,"university");
+	?>
+	</td>
+
+	<td>
+	이곳은 교수관리 페이지 입니다. <br><br>
+	<?php
+	//echo "<br>post 넘어온 부분 시작<br>";
+	//print_r($_POST);
+	//echo "<br>post 넘어온 부분 끝<br>";
+	if($_POST){
+	// sql insert 작성부분
+		$result=mysqli_query($db, "insert into instructor values
+		('".$_POST["ID"]."',
+		'".$_POST["name"]."',
+		'".$_POST["dept_name"]."',
+		".$_POST["salary"].")");
+		}
+	?>
+	<form method="post">
+	교수ID:<input type="text" name="ID"><br>
+	교수명:<input type="text" name="name"><br>
+	학과명:<input type="text" name="dept_name"><br>
+	연봉:<input type="text" name="salary"><br>
+	<input type="submit" value="추가">
+	</form>
+
+<br><br>
+
+	<?php
+	$sql_result=mysqli_query($db,"select * from instructor");
+	//echo $sql_result;
+	echo "<table border=1>";
+	while($sql_array=mysqli_fetch_row($sql_result)){ //fetch는 업데이트, 인서트문에는 필요 x 
+	//row array assoc  assoc 는 속성명 나오도록 하는거 
+	echo "<tr>";
+	for($i=0;$i<sizeof($sql_array);$i++)
+	echo "<td>".$sql_array[$i]."</td>";
+	echo "</tr>";
+	}
+	echo"</table>";
+	?>
+</td>
+</tr></table>
+</body>
+</html>
+
+student.php
+<html>
+<head>
+<title>학생관리</title>
+</head>
+<body>
+<table><tr>
+	<td>
+	<?php include "header.php";
+	$db=mysqli_connect("localhost","root","1226"); //비밀번호 변경할 것
+	mysqli_select_db($db,"university");
+	?>
+	</td>
+
+	<td>
+	이곳은 학생관리 페이지 입니다. <br><br>
+	<?php
+	//echo "<br>post 넘어온 부분 시작<br>";
+	//print_r($_POST);
+	//echo "<br>post 넘어온 부분 끝<br>";
+	if($_POST){
+	// sql insert 작성부분
+		$result=mysqli_query($db, "insert into student values
+		('".$_POST["ID"]."',
+		'".$_POST["name"]."',
+		'".$_POST["dept_name"]."',
+		".$_POST["tot_cred"].")");
+		}
+	?>
+	<form method="post">
+	학생ID:<input type="text" name="ID"><br>
+	학생명:<input type="text" name="name"><br>
+	학과명:<input type="text" name="dept_name"><br>
+	이수학점:<input type="text" name="tot_cred"><br>
+	<input type="submit" value="추가">
+	</form>
+
+<br><br>
+
+	<?php
+
+	$sql_result=mysqli_query($db,"select student.ID, student.name, student.dept_name,
+	 student.tot_cred, instructor.name from student,advisor,instructor where student.ID=advisor.s_id and
+	advisor.i_id=instructor.ID "); //지도교수 보이기 
+
+	//echo $sql_result;
+	echo "<table border=1>";
+	while($sql_array=mysqli_fetch_row($sql_result)){
+	echo "<tr>";
+	for($i=0;$i<sizeof($sql_array);$i++)
+	echo "<td>".$sql_array[$i]."</td>";
+	echo "</tr>";
+	}
+	echo"</table>";
+	?>
+</td>
+</tr></table>
+</body>
+</html>
+
+section.php
+<html>
+<head>
+<title>개설강좌</title>
+</head>
+<body>
+<table><tr>
+	<td>
+	<?php include "header.php";
+	$db=mysqli_connect("localhost","root","1226"); //비밀번호 변경할 것
+	mysqli_select_db($db,"university");
+	?>
+	</td>
+
+	<td>
+	이곳은 개설강좌 페이지 입니다. <br><br>
+	<?php
+	//echo "<br>post 넘어온 부분 시작<br>";
+	//print_r($_POST);
+	//echo "<br>post 넘어온 부분 끝<br>";
+	if($_POST){
+	// sql insert 작성부분
+		$result=mysqli_query($db, "insert into student values
+		('".$_POST["ID"]."',
+		'".$_POST["name"]."',
+		'".$_POST["dept_name"]."',
+		".$_POST["tot_cred"].")");
+if(!$result) echo mysqli_error($db);
+		}
+	?>
+	<form method="post">
+	학생ID:<input type="text" name="ID"><br>
+	학생명:<input type="text" name="name"><br>
+	학과명:<input type="text" name="dept_name"><br>
+	이수학점:<input type="text" name="tot_cred"><br>
+	<input type="submit" value="추가">
+	</form>
+
+<br><br>
+
+	<?php
+  
+	$sql_result=mysqli_query($db,"select * from section natural join course 
+	natural join time_slot natural join classroom");  
+ 	// 선행 과목 코드와 담당교수 이름을 추가로 출력할 것 
+
+	//echo $sql_result;
+	echo "<table border=1>";
+	$i=0;
+	while($sql_array=mysqli_fetch_assoc($sql_result)){ //각각의 속성명 assoc 
+	echo "<tr>";
+	$sql_array2=mysqli_fetch_assoc(mysqli_query($db,"select * from prereq where course_id = '".$sql_array["course_id"]."';"));
+	$sql_array3=mysqli_fetch_assoc(mysqli_query($db,"select * from instructor natural join teaches where 
+	course_id='".$sql_array["course_id"]."' and sec_id='".$sql_array["sec_id"]."' and semester='".$sql_array["semester"]."' and year=".$sql_array["year"].";"));
+
+	// 속성명 출력부분  
+	if($i==0){
+	echo "<th>사전이수과목</th>";
+	foreach($sql_array as $key => $value){ //각 배열의 키 값과 벨류 값 
+	echo "<th>".$key."</th>"; //  제목이니까 th
+	   }
+	echo "</tr><tr>";  
+	}
+	 echo "<td>".$sql_array2["prereq_id"]."</td>";
+	echo "<td>".$sql_array3["name"]."</td>";
+
+	//내용 출력 부분 
+	foreach($sql_array as $key => $value){ //각 배열의 키 값과 벨류 값 
+	 echo "<td>".$value."</td>";
+	}
+	//for($i=0;$i<sizeof($sql_array);$i++)
+	//echo "<td>".$sql_array[$i]."</td>";
+	echo "</tr>";
+	$i++;
+	}
+	echo"</table>";
+	?>
+</td>
+</tr></table>
+</body>
+</html>
+
+header.php
+<style>
+td { vertical-align:top;}
+</style>
+
+<table>
+
+<tr><td><a href="department.php"> 학사관리 </td></tr>
+<tr><td><a href="instructor.php"> 교수관리 </td></tr>
+<tr><td><a href="student.php"> 학생관리 </td></tr>
+<tr><td> <a href="section.php">개설강좌 </td></tr>
+<tr><td> 수강관리 </td></tr>
+</table>
+
+testTable.php
+<html>
+  <body>
+<?php if (!isset($_GET['name'])){ echo "Hello World"; }
+else { echo "Hello, ", $_GET['name']; }
+?>
+
+           <table border=1>
+        		<tr>
+         			<th> 입력한 이메일 </th>
+         			<th> 입력한 이름 </th>
+         			<th> 입력한 비밀번호 </th>
+    		</tr>
+    		<tr>
+         			<td><?php  echo $_GET['email'];  ?></td>
+                                        <td><?php  echo $_GET['name'];  ?></td>
+                                        <td><?php  echo $_GET['pass1'];  ?></td>
+     	 	</tr>
+   	</table>  
+   	<form method="get">
+      		이메일 <br><input type="email" name="email"><br>
+      		이름 <br><input type="text" name="name"><br>
+      		비밀번호 <br><input type="password" name="pass1"><br>
+      		비밀번호 확인 <br><input type="password" name="pass2"><br>
+          		<input type="checkbox" name="agree"> 서비스 이용약관..<br>
+      		<input type="submit" value="회원가입">
+   	</form>
+    </body>
+ </html>
+   
